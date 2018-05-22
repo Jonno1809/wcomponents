@@ -169,19 +169,23 @@ public abstract class AbstractWComponentTestCase {
 	 */
 	protected void assertComponentModelUsesDefaultOnSameValue(AbstractWComponent wComponent, String method,
 															  Object userContextValue, Object setterArgs[]) {
+		// Setup default model
 		wComponent.setLocked(false);
 		invokeSetMethod(wComponent, method, userContextValue, setterArgs);
 		ComponentModel shared = wComponent.getDefaultModel();
 		wComponent.setLocked(true);
 
+		// Test that getOrCreateComponentModel is getting the default model rather than creating a new one (without
+		// an active context)
 		ComponentModel model = wComponent.getOrCreateComponentModel();
 		org.junit.Assert.assertSame(model, shared);
 
+		// Tests that setting a value (which uses getOrCreateComponentModel) doesn't create a new model when the value
+		// is the same, it should just get the default model.
 		setActiveContext(createUIContext());
 		invokeSetMethod(wComponent, method, userContextValue, setterArgs);
-
-		model = wComponent.getOrCreateComponentModel();
-		org.junit.Assert.assertEquals(shared, model);
+		model = wComponent.getComponentModel();
+		org.junit.Assert.assertSame(shared, model);
 		resetContext();
 	}
 
@@ -205,23 +209,28 @@ public abstract class AbstractWComponentTestCase {
 	 * @param userContextValue the value to be used within the user context
 	 * @param setterArgs array matching the variable argument type
 	 */
-	protected void assertNoDuplicateComponentModels(AbstractWComponent wComponent, String method,
+	protected void assertNoDuplicateComponentModels(AbstractWComponent wComponent, String method, Object initialValue,
 			Object userContextValue, Object[] setterArgs) {
+		assertComponentModelUsesDefaultOnSameValue(wComponent, method, initialValue);
+
 		wComponent.setLocked(true);
-
 		setActiveContext(createUIContext());
+		// Change value from default
+		invokeSetMethod(wComponent, method, userContextValue, setterArgs);
+		ComponentModel model = wComponent.getComponentModel();
+		ComponentModel defaultModel = wComponent.getDefaultModel();
+		org.junit.Assert.assertNotEquals(model, defaultModel);
 
-		ComponentModel model = wComponent.getOrCreateComponentModel();
+		// Set same value, shouldn't change model
 		invokeSetMethod(wComponent, method, userContextValue, setterArgs);
 		ComponentModel newModel = wComponent.getComponentModel();
-
 		org.junit.Assert.assertSame(model, newModel);
 
 		resetContext();
-
-		model = wComponent.getComponentModel();
-		ComponentModel shared = wComponent.getDefaultModel();
-		org.junit.Assert.assertSame(model, shared);
+//
+//		model = wComponent.getComponentModel();
+//		ComponentModel shared = wComponent.getDefaultModel();
+//		org.junit.Assert.assertSame(model, shared);
 	}
 
 	/**
@@ -231,9 +240,12 @@ public abstract class AbstractWComponentTestCase {
 	 * @param method the method used to change the model
 	 * @param userContextValue the value to be used within the user context
 	 */
-	protected void assertNoDuplicateComponentModels(AbstractWComponent wComponent, String method,
-													Object userContextValue) {
-		assertNoDuplicateComponentModels(wComponent, method, userContextValue, null);
+	protected void assertNoDuplicateComponentModels(AbstractWComponent wComponent, String method, Object
+		initialValue, Object userContextValue) {
+		assertNoDuplicateComponentModels(wComponent, method, initialValue, userContextValue, null);
+	}
+	protected void assertNoDuplicateComponentModels(AbstractWComponent wComponent, String method, Object userContextValue) {
+		assertNoDuplicateComponentModels(wComponent, method, null, userContextValue, null);
 	}
 
 

@@ -320,12 +320,14 @@ public class WMultiFileWidget_Test extends AbstractWComponentTestCase {
 	@Test
 	public void testDuplicateComponentModels() {
 		WMultiFileWidget multiFileWidget = new WMultiFileWidget();
-		assertNoDuplicateComponentModels(multiFileWidget,"maxFileSize", 2012312312);
-		assertNoDuplicateComponentModels(multiFileWidget, "maxFiles", 123);
-		assertNoDuplicateComponentModels(multiFileWidget, "newUpload", true);
-		assertNoDuplicateComponentModels(multiFileWidget, "useThumbnails", true);
-		assertNoDuplicateComponentModels(multiFileWidget, "thumbnailPosition", WLink.ImagePosition.SOUTH);
-		assertNoDuplicateComponentModels(multiFileWidget, "thumbnailSize", new Dimension(22,33));
+		assertNoDuplicateComponentModels(multiFileWidget,"maxFileSize", 2,2012312312);
+		assertNoDuplicateComponentModels(multiFileWidget, "maxFiles", 3,123);
+		assertNoDuplicateComponentModels(multiFileWidget, "newUpload", false,true);
+		assertNoDuplicateComponentModels(multiFileWidget, "useThumbnails", false,true);
+		assertNoDuplicateComponentModels(multiFileWidget, "thumbnailPosition", WLink.ImagePosition.EAST,WLink
+			.ImagePosition.SOUTH);
+		assertNoDuplicateComponentModels(multiFileWidget, "thumbnailSize", new Dimension(3,2),new Dimension(22,
+			33));
 //		assertNoDuplicateComponentModels(multiFileWidget, "fileUploadRequestId", "TestId"); // No such method exception
 	}
 
